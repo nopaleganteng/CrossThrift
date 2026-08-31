@@ -17,6 +17,47 @@ public class UserDashboard extends javax.swing.JFrame {
     public UserDashboard() {
         initComponents();
     }
+    
+    // 2. Constructor Kedua untuk Menerima Data dari Halaman Transaksi
+    public UserDashboard(javax.swing.table.DefaultTableModel modelKeranjangAsal) {
+        initComponents();
+        
+        // Pindahkan data ke tabel keranjang di UserDashboard (Pastikan jTable2 sesuai dengan nama tabel keranjang Anda)
+        javax.swing.table.DefaultTableModel modelDashboard = (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        modelDashboard.setRowCount(0);
+        
+        for (int i = 0; i < modelKeranjangAsal.getRowCount(); i++) {
+            Object nama = modelKeranjangAsal.getValueAt(i, 0);
+            Object harga = modelKeranjangAsal.getValueAt(i, 1);
+            Object jumlah = modelKeranjangAsal.getValueAt(i, 2);
+            Object subtotal = modelKeranjangAsal.getValueAt(i, 3);
+            
+            modelDashboard.addRow(new Object[]{nama, harga, jumlah, subtotal});
+        }
+    }
+    
+    // Method untuk menghitung total belanja di UserDashboard secara otomatis
+    public void hitungTotalDashboard() {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        double total = 0;
+        
+        for (int i = 0; i < model.getRowCount(); i++) {
+            try {
+                // Ambil nilai dari kolom SubTotal (asumsi SubTotal ada di indeks kolom ke-3)
+                String subTotalStr = model.getValueAt(i, 3).toString()
+                                          .replace("Rp.", "")
+                                          .replace(".", "")
+                                          .trim();
+                double subTotal = Double.parseDouble(subTotalStr);
+                total += subTotal;
+            } catch (Exception e) {
+                // Mengantisipasi baris kosong
+            }
+        }
+        
+        // Tampilkan ke Label Total Bayar (Sesuaikan jLabel2 dengan nama label total bayar Anda)
+        jLabel6.setText("Total Bayar : Rp. " + String.format("%,.0f", total).replace(",", "."));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -41,8 +82,8 @@ public class UserDashboard extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jbuttontambahkeranjang = new javax.swing.JButton();
+        jButtonhapuspesanan = new javax.swing.JButton();
         btnBayar = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
 
@@ -52,7 +93,7 @@ public class UserDashboard extends javax.swing.JFrame {
         jPanel2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel1.setFont(new java.awt.Font("Serif", 0, 48)); // NOI18N
-        jLabel1.setText("CrossTrift Shop");
+        jLabel1.setText("CrossThrift Shop");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -75,6 +116,11 @@ public class UserDashboard extends javax.swing.JFrame {
         jLabel2.setText("PILIH BARANG");
 
         jTextField1.addActionListener(this::jTextField1ActionPerformed);
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel3.setText("Cari Barang :");
@@ -102,10 +148,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Jaket Denim Vintage", "Rp.120.000", "1", "Rp.120.000"},
-                {"Kemeja Flannel", "Rp.75.000", "2", "Rp.150.000"},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "Nama Barang", "Harga", "Jumlah", "SubTotal"
@@ -113,13 +156,13 @@ public class UserDashboard extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(jTable2);
 
-        jLabel6.setText("Total Bayar : Rp.270.000");
+        jLabel6.setText("Total Bayar : Rp. ...");
 
-        jButton1.setText("TAMBAH KE KERANJANG");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        jbuttontambahkeranjang.setText("TAMBAH KE KERANJANG");
+        jbuttontambahkeranjang.addActionListener(this::jbuttontambahkeranjangActionPerformed);
 
-        jButton2.setText("HAPUS PESANAN");
-        jButton2.addActionListener(this::jButton2ActionPerformed);
+        jButtonhapuspesanan.setText("HAPUS PESANAN");
+        jButtonhapuspesanan.addActionListener(this::jButtonhapuspesananActionPerformed);
 
         btnBayar.setText("BAYAR");
         btnBayar.addActionListener(this::btnBayarActionPerformed);
@@ -159,9 +202,9 @@ public class UserDashboard extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel6)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jButton1)
+                                        .addComponent(jbuttontambahkeranjang)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                                        .addComponent(jButton2))
+                                        .addComponent(jButtonhapuspesanan))
                                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                                 .addGap(58, 58, 58))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -200,8 +243,8 @@ public class UserDashboard extends javax.swing.JFrame {
                         .addComponent(jLabel6)
                         .addGap(31, 31, 31)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2))
+                            .addComponent(jbuttontambahkeranjang)
+                            .addComponent(jButtonhapuspesanan))
                         .addGap(10, 10, 10)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -229,21 +272,78 @@ public class UserDashboard extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jbuttontambahkeranjangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbuttontambahkeranjangActionPerformed
+     int barisTerpilih = jTable1.getSelectedRow();
+     if (barisTerpilih == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Silakan pilih barang terlebih dahulu dari tabel!");
+            return;
+        }
+     int barisModel = jTable1.convertRowIndexToModel(barisTerpilih);
+     javax.swing.table.DefaultTableModel modelBarang = (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        javax.swing.table.DefaultTableModel modelKeranjang = (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        String namaBarang = modelBarang.getValueAt(barisModel, 0).toString();
+        String hargaBarang = modelBarang.getValueAt(barisModel, 1).toString();
+        String jumlah = "1";
+        String subTotal = hargaBarang;
+        modelKeranjang.addRow(new Object[]{namaBarang, hargaBarang, jumlah, subTotal});
+        System.out.println(namaBarang + " berhasil ditambahkan ke keranjang.");
+        
+        
+        hitungTotalDashboard();
+    }//GEN-LAST:event_jbuttontambahkeranjangActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void jButtonhapuspesananActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonhapuspesananActionPerformed
+      int barisTerpilih = jTable2.getSelectedRow();
+      if (barisTerpilih == -1) {
+            // Jika belum memilih, tampilkan pesan peringatan
+            javax.swing.JOptionPane.showMessageDialog(this, "Silakan pilih barang di keranjang yang ingin dihapus terlebih dahulu!");
+            return; // Hentikan eksekusi kode di sini
+        }
+      int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(this, 
+                "Apakah Anda yakin ingin menghapus barang ini dari keranjang?", 
+                "Konfirmasi Hapus", 
+                javax.swing.JOptionPane.YES_NO_OPTION);
+      
+      if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
+            // Ambil model dari tabel keranjang
+            javax.swing.table.DefaultTableModel modelKeranjang = (javax.swing.table.DefaultTableModel) jTable2.getModel();
+            
+            // Hapus baris berdasarkan indeks yang dipilih
+            modelKeranjang.removeRow(barisTerpilih);
+            
+        }
+      hitungTotalDashboard();
+    }//GEN-LAST:event_jButtonhapuspesananActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        Transaksi frameTransaksi = new Transaksi();
-    frameTransaksi.setLocationRelativeTo(null); // Membuka jendela di tengah layar
-    frameTransaksi.setVisible(true);
+ // 1. Ambil model tabel keranjang
+        // 1. Ambil model tabel keranjang dari UserDashboard
+        javax.swing.table.DefaultTableModel modelKeranjangUser = (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        
+        // 2. Validasi: Cek apakah keranjang kosong
+        if (modelKeranjangUser.getRowCount() == 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Keranjang masih kosong! Silakan tambah barang dulu.");
+            return;
+        }
+
+        // 3. PANGGIL CONSTRUCTOR YANG MEMBAWA DATA (Perhatikan bagian dalam kurung ini)
+        Transaksi frameTransaksi = new Transaksi(modelKeranjangUser);
+        frameTransaksi.setLocationRelativeTo(null);
+        frameTransaksi.setVisible(true);
+        
+        // 4. Tutup dashboard
+        this.dispose();
     
-    this.dispose();
+   
     }//GEN-LAST:event_btnBayarActionPerformed
+
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+       String teksCari = jTextField1.getText();
+       javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
+       javax.swing.table.TableRowSorter<javax.swing.table.DefaultTableModel> tr = new javax.swing.table.TableRowSorter<>(model);
+        jTable1.setRowSorter(tr);
+        tr.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + teksCari));
+    }//GEN-LAST:event_jTextField1KeyReleased
 
     /**
      * @param args the command line arguments
@@ -272,8 +372,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBayar;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButtonhapuspesanan;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -289,5 +388,6 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton jbuttontambahkeranjang;
     // End of variables declaration//GEN-END:variables
 }

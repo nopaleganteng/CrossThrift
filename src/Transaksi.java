@@ -3,10 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
-/**
+/** 
  *
  * @author haika
  */
+
+
 public class Transaksi extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Transaksi.class.getName());
@@ -16,7 +18,47 @@ public class Transaksi extends javax.swing.JFrame {
      */
     public Transaksi() {
         initComponents();
+        
     }
+        public Transaksi(javax.swing.table.DefaultTableModel modelKeranjangAsal) {
+        initComponents();
+        
+        // Pindahkan data dari keranjang UserDashboard ke jTable2 di Transaksi
+        javax.swing.table.DefaultTableModel modelTransaksi = (javax.swing.table.DefaultTableModel) tabelkeranjang.getModel();
+        modelTransaksi.setRowCount(0); 
+        
+        for (int i = 0; i < modelKeranjangAsal.getRowCount(); i++) {
+            Object nama = modelKeranjangAsal.getValueAt(i, 0);
+            Object harga = modelKeranjangAsal.getValueAt(i, 1);
+            Object jumlah = modelKeranjangAsal.getValueAt(i, 2);
+            Object subtotal = modelKeranjangAsal.getValueAt(i, 3);
+            
+            modelTransaksi.addRow(new Object[]{nama, harga, jumlah, subtotal}); 
+        }
+        
+      hitungTotalBelanja();
+    }
+        // Method untuk menghitung total belanja secara otomatis dari tabel keranjang
+    public void hitungTotalBelanja() {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tabelkeranjang.getModel();
+        double total = 0;
+        
+        for (int i = 0; i < model.getRowCount(); i++) {
+            try {
+                String subTotalStr = model.getValueAt(i, 3).toString()
+                                          .replace("Rp.", "")
+                                          .replace(".", "")
+                                          .trim();
+                double subTotal = Double.parseDouble(subTotalStr);
+                total += subTotal;
+            } catch (Exception e) {
+                // Mengantisipasi jika format salah
+            }
+        }
+        // Menampilkan hasil ke jLabelTotal
+        jLabelTotal.setText("Total : Rp. " + String.format("%,.0f", total).replace(",", "."));
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -31,7 +73,7 @@ public class Transaksi extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tabelkeranjang = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -41,11 +83,8 @@ public class Transaksi extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jLabel7 = new javax.swing.JLabel();
+        jLabelTotal = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
@@ -79,18 +118,18 @@ public class Transaksi extends javax.swing.JFrame {
                 .addContainerGap(43, Short.MAX_VALUE))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabelkeranjang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Jaket Denim", "Pakaian", "Rp.120.000", "4"},
-                {"TasSelempang", "Aksesoris", "Rp.95.000", "2"},
-                {"Kemeja", "Pakaian", "Rp.75.000", "6"},
-                {"Sepatu", "Sepatu", "Rp.150.000", "3"}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Nama Barang", "Jenis", "Harga", "Stok"
+                "Nama Barang", "Harga", "Jumlah", "Subtotal"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tabelkeranjang);
 
         jLabel2.setText("Tanggal");
 
@@ -149,37 +188,30 @@ public class Transaksi extends javax.swing.JFrame {
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel4)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
-
-        jLabel6.setText("ID Transakasi");
 
         jButton1.setText("Transaksi Baru");
         jButton1.addActionListener(this::jButton1ActionPerformed);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"", "", "", ""},
-                {"", "", "", ""},
-                {"", "", "", ""},
-                {"", "", "", ""}
-            },
-            new String [] {
-                "Nama Barang", "Jenis", "Harga", "Stok"
-            }
-        ));
-        jScrollPane2.setViewportView(jTable2);
-
-        jLabel7.setText("Total ...");
+        jLabelTotal.setText("Total ...");
 
         jLabel8.setText("Bayar");
 
         jLabel9.setText("Kembalian");
 
+        jTextField5.addActionListener(this::jTextField5ActionPerformed);
+        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField5KeyReleased(evt);
+            }
+        });
+
         btnKembali.setText("KEMBALI");
         btnKembali.addActionListener(this::btnKembaliActionPerformed);
 
         jButton3.setText("INSERT");
+        jButton3.addActionListener(this::jButton3ActionPerformed);
 
         jButton4.setText("HAPUS");
 
@@ -199,36 +231,36 @@ public class Transaksi extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addComponent(btnKembali)
-                                .addGap(185, 185, 185)
-                                .addComponent(jButton3)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton4)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton5))
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(302, 302, 302)
-                                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(21, 21, 21)
+                                    .addComponent(btnKembali)
+                                    .addGap(185, 185, 185)
+                                    .addComponent(jButton3)
                                     .addGap(18, 18, 18)
-                                    .addComponent(jTextField6))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(226, 226, 226)
-                                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton4)
                                     .addGap(18, 18, 18)
-                                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jButton5))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(302, 302, 302)
+                                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jTextField6))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(302, 302, 302)
+                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jLabelTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(21, 21, 21))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -238,16 +270,13 @@ public class Transaksi extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(jLabelTotal)
+                .addGap(20, 20, 20)
+                .addComponent(jButton1)
+                .addGap(62, 62, 62)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jButton1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
                     .addComponent(jLabel8)
                     .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
@@ -299,6 +328,16 @@ public class Transaksi extends javax.swing.JFrame {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        // 1. Ambil model tabel keranjang yang ada di halaman Transaksi saat ini
+        javax.swing.table.DefaultTableModel modelKeranjangTransaksi = (javax.swing.table.DefaultTableModel) tabelkeranjang.getModel();
+        
+        // 2. Buka kembali UserDashboard sambil membawa data keranjang tersebut
+        UserDashboard dashboard = new UserDashboard(modelKeranjangTransaksi);
+        dashboard.setLocationRelativeTo(null);
+        dashboard.setVisible(true);
+        
+        // 3. Tutup halaman Transaksi Penjualan ini
+        this.dispose();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
@@ -308,6 +347,151 @@ public class Transaksi extends javax.swing.JFrame {
     
     this.dispose();
     }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        // 1. Ambil nilai dari text field yang diketik kasir di atas
+        String tanggal = jTextField1.getText().trim();
+        String namaBarang = jTextField2.getText().trim();
+        String hargaStr = jTextField3.getText().replace("Rp.", "").replace(".", "").trim();
+        String jumlahStr = jTextField4.getText().trim();
+        
+        // 2. Validasi: Pastikan kolom atas terisi sebelum di-insert
+        if (tanggal.isEmpty() || namaBarang.isEmpty() || hargaStr.isEmpty() || jumlahStr.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Mohon lengkapi Tanggal, Nama Barang, Harga, dan Jumlah terlebih dahulu!");
+            return;
+        }
+
+        try {
+            // 3. Konversi nilai ke angka
+            double harga = Double.parseDouble(hargaStr);
+            int jumlah = Integer.parseInt(jumlahStr);
+            double subtotal = harga * jumlah;
+            
+            // 4. Masukkan data ke dalam tabelkeranjang di bagian bawah secara otomatis
+            javax.swing.table.DefaultTableModel modelTransaksi = (javax.swing.table.DefaultTableModel) tabelkeranjang.getModel();
+            
+            // Bersihkan baris kosong bawaan jika ada
+            if (modelTransaksi.getRowCount() == 1 && modelTransaksi.getValueAt(0, 0) == null) {
+                modelTransaksi.setRowCount(0);
+            }
+            
+            // Tambahkan ke tabel visual
+            modelTransaksi.addRow(new Object[]{
+                namaBarang, 
+                String.format("%,.0f", harga).replace(",", "."), 
+                jumlah, 
+                String.format("%,.0f", subtotal).replace(",", ".")
+            });
+            
+            // Update total belanja otomatis
+            hitungTotalBelanja();
+
+            // 5. Simpan juga langsung ke Database MySQL
+            java.sql.Connection conn = backend.KoneksiDB.getKoneksi();
+            if (conn != null) {
+                String sql = "INSERT INTO transaksi (tanggal, nama_barang, harga, jumlah, subtotal) VALUES (?, ?, ?, ?, ?)";
+                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+                
+                pst.setString(1, tanggal);
+                pst.setString(2, namaBarang);
+                pst.setDouble(3, harga);
+                pst.setInt(4, jumlah);
+                pst.setDouble(5, subtotal);
+                
+                pst.executeUpdate();
+            }
+
+            // 6. Kosongkan kembali text field inputan atas agar siap mengetik barang berikutnya
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField2.requestFocus(); // Kembalikan kursor ke kolom nama barang
+
+        javax.swing.JOptionPane.showMessageDialog(this, "Transaksi Berhasil Disimpan ke Database!");
+            
+            // 1. Buka kembali UserDashboard (Dashboard Awal)
+            UserDashboard dashboard = new UserDashboard();
+            dashboard.setLocationRelativeTo(null);
+            dashboard.setVisible(true);
+            
+            // 2. Tutup halaman Transaksi Penjualan ini
+            this.dispose();
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Gagal menyimpan ke database: " + e.getMessage());
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+        // TODO add your handling code here:
+        
+        try {
+            // 1. Ambil nilai Total Belanja (Misal dari JLabel total atau variabel total)
+            // Pastikan Anda sudah punya variabel angka total belanja. 
+            // Sebagai contoh kita ambil teks dari jLabel7 (Total ...)
+            String teksTotal = jLabelTotal.getText().replace("Total : Rp.", "").replace(".", "").trim();
+            
+            if (teksTotal.isEmpty() || teksTotal.equals("...")) {
+                return;
+            }
+            
+            double totalBelanja = Double.parseDouble(teksTotal);
+            
+            // 2. Ambil nominal uang yang diketik kasir di kolom "Bayar" (jTextField5)
+            String teksBayar = jTextField5.getText().trim();
+            if (teksBayar.isEmpty()) {
+                jTextField6.setText(""); // Kosongkan kembalian jika kolom bayar kosong
+                return;
+            }
+            
+            double uangBayar = Double.parseDouble(teksBayar);
+            
+            // 3. Hitung kembalian (Uang Bayar - Total Belanja)
+            double kembalian = uangBayar - totalBelanja;
+            
+            // 4. Tampilkan hasilnya ke kolom "Kembalian" (jTextField6)
+            if (kembalian >= 0) {
+                jTextField6.setText(String.valueOf(kembalian));
+            } else {
+                jTextField6.setText("Uang Kurang!");
+            }
+            
+        } catch (NumberFormatException e) {
+            // Mengantisipasi jika kasir mengetik huruf
+            jTextField6.setText("Format salah");
+        }
+    }//GEN-LAST:event_jTextField5ActionPerformed
+
+    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
+        // TODO add your handling code here:
+        try {
+            String teksTotal = jLabelTotal.getText().replace("Total : Rp.", "").replace(".", "").trim();
+            
+            if (teksTotal.isEmpty() || teksTotal.equals("...")) {
+                return;
+            }
+            
+            double totalBelanja = Double.parseDouble(teksTotal);
+            
+            String teksBayar = jTextField5.getText().trim();
+            if (teksBayar.isEmpty()) {
+                jTextField6.setText(""); 
+                return;
+            }
+            
+            double uangBayar = Double.parseDouble(teksBayar);
+            double kembalian = uangBayar - totalBelanja;
+            
+            if (kembalian >= 0) {
+                jTextField6.setText(String.valueOf(kembalian));
+            } else {
+                jTextField6.setText("Uang Kurang!");
+            }
+            
+        } catch (NumberFormatException e) {
+            jTextField6.setText("Format salah");
+        }
+    }//GEN-LAST:event_jTextField5KeyReleased
 
     /**
      * @param args the command line arguments
@@ -333,6 +517,7 @@ public class Transaksi extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Transaksi().setVisible(true));
     }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnKembali;
@@ -345,22 +530,20 @@ public class Transaksi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelTotal;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
+    private javax.swing.JTable tabelkeranjang;
     // End of variables declaration//GEN-END:variables
+
 }

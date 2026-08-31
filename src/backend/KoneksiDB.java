@@ -19,13 +19,13 @@ public class KoneksiDB {
     public static Connection getKoneksi() {
         if (koneksi == null) {
             try {
-                // Pastikan port 3306 sesuai dengan Laragon lu
-                String url = "jdbc:mysql://127.0.0.1:3308/db_thrift";
+                // Port diubah ke 3306 sesuai Laragon, dan ditambah parameter SSL
+                String url = "jdbc:mysql://localhost:3306/crossthrift?useSSL=false&allowPublicKeyRetrieval=true";
                 String user = "root"; // Default Laragon
                 String password = ""; // Default Laragon biasanya kosong
                 
                 koneksi = DriverManager.getConnection(url, user, password);
-                System.out.println("Berhasil Terhubung ke Database db_thrift!");
+                System.out.println("Berhasil Terhubung ke Database crossthrift!");
                 
             } catch (SQLException e) {
                 System.out.println("Error Koneksi: " + e.getMessage());
